@@ -45,7 +45,13 @@ const getCategoryColor = (category) => {
 
 function Leaderboard() {
   const navigate = useNavigate()
-  const { leaderboard } = useQuiz()
+  const { leaderboard, clearLeaderboard } = useQuiz()
+
+  const handleClear = () => {
+    if (window.confirm('Are you sure you want to clear all leaderboard entries? This cannot be undone.')) {
+      clearLeaderboard()
+    }
+  }
 
   return (
     <motion.div
@@ -82,6 +88,16 @@ function Leaderboard() {
           Leaderboard
         </h1>
         <p>Top quiz champions</p>
+        {leaderboard.length > 0 && (
+          <motion.button
+            className="btn-clear"
+            onClick={handleClear}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            🗑️ Clear All Entries
+          </motion.button>
+        )}
       </motion.div>
 
       <motion.div className="leaderboard-card" variants={itemVariants}>

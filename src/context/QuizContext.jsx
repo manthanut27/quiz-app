@@ -48,6 +48,11 @@ export function QuizProvider({ children }) {
     setQuizStatus('')
   }
 
+  const clearLeaderboard = () => {
+    setLeaderboard([])
+    localStorage.removeItem('quizLeaderboard')
+  }
+
   const value = {
     userName,
     setUserName,
@@ -61,7 +66,8 @@ export function QuizProvider({ children }) {
     setQuizStatus,
     leaderboard,
     saveToLeaderboard,
-    resetQuiz
+    resetQuiz,
+    clearLeaderboard
   }
 
   return (

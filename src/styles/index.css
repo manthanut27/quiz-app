@@ -158,6 +158,28 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--primary);
 }
 
+.btn-clear {
+  background: linear-gradient(135deg, #dc3545, #ff6b6b);
+  border: none;
+  color: white;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  transition: var(--transition);
+  margin-top: 12px;
+}
+
+.btn-clear:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.btn-clear:active {
+  transform: translateY(0);
+}
+
 /* Loading Spinner */
 .loading {
   display: flex;
@@ -1254,3 +1276,4 @@ h1, h2, h3, h4, h5, h6 {
   0% { background-position: -200% center; }
   100% { background-position: 200% center; }
 }
+

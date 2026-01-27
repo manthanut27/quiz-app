@@ -1,58 +1,101 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useQuiz } from '../context/QuizContext'
 
+/* -------------------- Animations -------------------- */
+
 const containerVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { 
-    opacity: 1, 
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
     scale: 1,
-    transition: { duration: 0.5, ease: "easeOut" }
+    transition: { duration: 0.4, ease: 'easeOut' },
   },
-  exit: { opacity: 0, scale: 0.8, transition: { duration: 0.3 } }
+  exit: { opacity: 0, scale: 0.9, transition: { duration: 0.25 } },
 }
 
 const confettiColors = ['#32b7bc', '#8970d4', '#de6c66', '#F9BC06', '#20c997']
+
+/* -------------------- Score Logic -------------------- */
+
+function calculateResult({ score, totalQuestions, passPercentage = 50 }) {
+  const safeTotal = Math.max(totalQuestions || 0, 0)
+  const safeScore = Math.min(Math.max(score || 0, 0), safeTotal)
+
+  const percentage =
+    safeTotal === 0 ? 0 : Math.round((safeScore / safeTotal) * 100)
+
+  const passed = percentage >= passPercentage
+
+  let message, emoji, grade
+
+  if (percentage >= 90) {
+    grade = 'A+'
+    message = "Outstanding! You're a master!"
+    emoji = '🏆'
+  } else if (percentage >= 70) {
+    grade = 'A'
+    message = 'Great job! Well done!'
+    emoji = '🎉'
+  } else if (percentage >= passPercentage) {
+    grade = 'B'
+    message = 'Good effort! You passed!'
+    emoji = '👍'
+  } else {
+    grade = 'F'
+    message = "Keep practicing! You'll get better!"
+    emoji = '💪'
+  }
+
+  return {
+    score: safeScore,
+    totalQuestions: safeTotal,
+    percentage,
+    passed,
+    grade,
+    message,
+    emoji,
+  }
+}
+
+/* -------------------- Confetti -------------------- */
 
 function Confetti() {
   const [particles, setParticles] = useState([])
 
   useEffect(() => {
-    const newParticles = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      delay: Math.random() * 2,
-      duration: 2 + Math.random() * 2,
-      color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
-      size: 5 + Math.random() * 10
-    }))
-    setParticles(newParticles)
+    setParticles(
+      Array.from({ length: 50 }, (_, i) => ({
+        id: i,
+        x: Math.random() * 100,
+        delay: Math.random() * 1.5,
+        duration: 2 + Math.random() * 2,
+        color: confettiColors[Math.floor(Math.random() * confettiColors.length)],
+        size: 6 + Math.random() * 8,
+      }))
+    )
   }, [])
 
   return (
     <div className="confetti-container">
-      {particles.map((p) => (
+      {particles.map(p => (
         <motion.div
           key={p.id}
           className="confetti-particle"
           style={{
             left: `${p.x}%`,
-            backgroundColor: p.color,
             width: p.size,
-            height: p.size
+            height: p.size,
+            backgroundColor: p.color,
           }}
-          initial={{ y: -20, opacity: 1, rotate: 0 }}
-          animate={{ 
-            y: '100vh', 
-            opacity: 0,
-            rotate: 360 * (Math.random() > 0.5 ? 1 : -1)
-          }}
-          transition={{ 
+          initial={{ y: -20, opacity: 1 }}
+          animate={{ y: '100vh', opacity: 0, rotate: 360 }}
+          transition={{
             duration: p.duration,
             delay: p.delay,
-            ease: "linear",
-            repeat: Infinity
+            ease: 'linear',
+            repeat: Infinity,
           }}
         />
       ))}
@@ -60,39 +103,36 @@ function Confetti() {
   )
 }
 
+/* -------------------- Score Page -------------------- */
+
 function Score() {
   const navigate = useNavigate()
-  const { userName, score, totalQuestions, quizStatus, category } = useQuiz()
+  const { userName, score, totalQuestions, category } = useQuiz()
   const [showConfetti, setShowConfetti] = useState(false)
 
-  const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
-  const isPassed = quizStatus === 'PASSED'
+  const result = useMemo(
+    () =>
+      calculateResult({
+        score,
+        totalQuestions,
+        passPercentage: 50,
+      }),
+    [score, totalQuestions]
+  )
 
-  useEffect(() => {
-    if (isPassed) {
-      setShowConfetti(true)
-    }
-  }, [isPassed])
+  const { percentage, passed, message, emoji } = result
 
+  /* Block illegal access */
   useEffect(() => {
-    if (!totalQuestions) {
-      navigate('/')
+    if (!totalQuestions || totalQuestions <= 0) {
+      navigate('/', { replace: true })
     }
   }, [totalQuestions, navigate])
 
-  const getMessage = () => {
-    if (percentage >= 90) return "Outstanding! You're a master!"
-    if (percentage >= 70) return "Great job! Well done!"
-    if (percentage >= 50) return "Good effort! You passed!"
-    return "Keep practicing! You'll get better!"
-  }
-
-  const getEmoji = () => {
-    if (percentage >= 90) return "🏆"
-    if (percentage >= 70) return "🎉"
-    if (percentage >= 50) return "👍"
-    return "💪"
-  }
+  /* Celebration */
+  useEffect(() => {
+    setShowConfetti(passed)
+  }, [passed])
 
   return (
     <motion.div
@@ -104,103 +144,58 @@ function Score() {
     >
       {showConfetti && <Confetti />}
 
-      <motion.div 
-        className="score-card"
-        initial={{ y: 50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-      >
-        {/* Status Badge */}
-        <motion.div 
-          className={`status-badge ${isPassed ? 'passed' : 'failed'}`}
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.5, type: "spring", stiffness: 500 }}
-        >
-          {isPassed ? '✅ PASSED' : '❌ FAILED'}
-        </motion.div>
+      <div className="score-card">
+        {/* Status */}
+        <div className={`status-badge ${passed ? 'passed' : 'failed'}`}>
+          {passed ? '✅ PASSED' : '❌ FAILED'}
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          Quiz Completed!
-        </motion.h1>
+        <h1>Quiz Completed</h1>
 
-        <motion.p 
-          className="player-name"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.7 }}
-        >
-          Well done, <span>{userName}</span>!
-        </motion.p>
+        <p className="player-name">
+          Well done, <span>{userName}</span>
+        </p>
 
-        {/* Score Circle */}
-        <motion.div 
-          className="score-circle"
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.8, type: "spring", stiffness: 200 }}
-        >
+        {/* Score Ring */}
+        <div className="score-circle">
           <svg viewBox="0 0 120 120" className="score-ring">
-            <circle
-              className="score-ring-bg"
-              cx="60"
-              cy="60"
-              r="54"
-            />
+            <circle cx="60" cy="60" r="54" className="score-ring-bg" />
             <motion.circle
-              className={`score-ring-progress ${isPassed ? 'passed' : 'failed'}`}
               cx="60"
               cy="60"
               r="54"
+              className={`score-ring-progress ${passed ? 'passed' : 'failed'}`}
               initial={{ pathLength: 0 }}
               animate={{ pathLength: percentage / 100 }}
-              transition={{ delay: 1, duration: 1.5, ease: "easeOut" }}
+              transition={{ duration: 1.2, ease: 'easeOut' }}
             />
           </svg>
+
           <div className="score-value">
-            <motion.span 
-              className="percentage"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-            >
-              {percentage}%
-            </motion.span>
-            <span className="score-detail">{score} / {totalQuestions}</span>
+            <span className="percentage">{percentage}%</span>
+            <span className="score-detail">
+              {result.score} / {result.totalQuestions}
+            </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Message */}
-        <motion.div 
-          className="result-message"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.8 }}
-        >
-          <span className="emoji">{getEmoji()}</span>
-          <p>{getMessage()}</p>
-        </motion.div>
+        <div className="result-message">
+          <span className="emoji">{emoji}</span>
+          <p>{message}</p>
+        </div>
 
-        {/* Category Badge */}
-        <motion.div 
-          className="category-completed"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-        >
+        {/* Category */}
+        <div className="category-completed">
           Category: <span>{category?.toUpperCase()}</span>
-        </motion.div>
+        </div>
 
-        {/* Action Buttons */}
-        <motion.div 
+        {/* Actions — RESTORED UI */}
+        <motion.div
           className="score-actions"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2.2 }}
+          transition={{ delay: 0.4 }}
         >
           <motion.button
             className="btn btn-primary"
@@ -210,6 +205,7 @@ function Score() {
           >
             🔄 Play Again
           </motion.button>
+
           <motion.button
             className="btn btn-secondary1"
             onClick={() => navigate('/leaderboard')}
@@ -218,6 +214,7 @@ function Score() {
           >
             🏆 Leaderboard
           </motion.button>
+
           <motion.button
             className="btn btn-outline"
             onClick={() => navigate('/')}
@@ -227,7 +224,7 @@ function Score() {
             🏠 Home
           </motion.button>
         </motion.div>
-      </motion.div>
+      </div>
     </motion.div>
   )
 }
