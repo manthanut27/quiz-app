@@ -127,6 +127,13 @@ h1, h2, h3, h4, h5, h6 {
   border: 2px solid var(--border-color);
   
 }
+.btn-secondary2 {
+  background: white;
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  position: relative;
+  left: 20px;
+}
 
 .btn-secondary:hover {
   border-color: var(--primary);

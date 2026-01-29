@@ -152,7 +152,7 @@ function QuizSelect() {
 
         {/* Buttons */}
         <div className="action-buttons">
-          <button className="btn btn-secondary1" onClick={() => navigate('/')}>
+          <button className="btn btn-secondary2" onClick={() => navigate('/')}>
             Back
           </button>
           <button className="btn btn-primary" onClick={handleSubmit}>
