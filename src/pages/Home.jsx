@@ -56,45 +56,15 @@ function Home() {
     >
       {/* Floating Background Elements */}
       <div className="floating-shapes">
-        <motion.div 
-          className="shape shape-1"
-          animate={{ 
-            rotate: 360,
-            scale: [1, 1.2, 1]
-          }}
-          transition={{ 
-            rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
-          }}
-        />
-        <motion.div 
-          className="shape shape-2"
-          animate={{ 
-            rotate: -360,
-            y: [0, 30, 0]
-          }}
-          transition={{ 
-            rotate: { duration: 25, repeat: Infinity, ease: "linear" },
-            y: { duration: 5, repeat: Infinity, ease: "easeInOut" }
-          }}
-        />
-        <motion.div 
-          className="shape shape-3"
-          animate={{ 
-            rotate: 360,
-            x: [0, 20, 0]
-          }}
-          transition={{ 
-            rotate: { duration: 30, repeat: Infinity, ease: "linear" },
-            x: { duration: 6, repeat: Infinity, ease: "easeInOut" }
-          }}
-        />
+        <motion.div className="shape shape-1" />
+        <motion.div className="shape shape-2" />
+        <motion.div className="shape shape-3" />
       </div>
 
       {/* Badge */}
       <motion.div className="badge" variants={itemVariants}>
-        <motion.img 
-          src="/assests/puzzle-icon.svg" 
+        <motion.img
+          src="/icons/puzzle-icon.svg"
           alt="Quiz Icon"
           variants={floatVariants}
           animate="animate"
@@ -121,26 +91,19 @@ function Home() {
             Quiz Challenge
           </motion.span>
         </h1>
-        <motion.p 
-          className="subtitle"
-          variants={itemVariants}
-        >
-          Master HTML, CSS and JavaScript with our interactive quiz. 
+
+        <motion.p className="subtitle" variants={itemVariants}>
+          Master HTML, CSS and JavaScript with our interactive quiz.
           Challenge yourself and see how much you know!
         </motion.p>
       </motion.div>
 
       {/* Rules Card */}
-      <motion.div 
-        className="rules-card"
-        variants={itemVariants}
-        whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(0,0,0,0.15)" }}
-        transition={{ type: "spring", stiffness: 300 }}
-      >
+      <motion.div className="rules-card" variants={itemVariants}>
         <h2 className="card-title">Quiz Rules</h2>
         <ul className="rules-list">
           {rules.map((rule, index) => (
-            <motion.li 
+            <motion.li
               key={index}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -156,28 +119,14 @@ function Home() {
       {/* Buttons */}
       <motion.div className="button-group" variants={itemVariants}>
         <Link to="/quiz-select">
-          <motion.button
-            className="btn btn-primary"
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 10px 30px rgba(50, 183, 188, 0.4)"
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <img src="/assests/quiz.svg" alt="" />
+          <motion.button className="btn btn-primary">
+            <img src="/icons/quiz.svg" alt="Quiz" />
             Start Quiz
           </motion.button>
         </Link>
-        
+
         <Link to="/leaderboard">
-          <motion.button
-            className="btn btn-secondary"
-            whileHover={{ 
-              scale: 1.05,
-              boxShadow: "0 10px 30px rgba(0,0,0,0.1)"
-            }}
-            whileTap={{ scale: 0.95 }}
-          >
+          <motion.button className="btn btn-secondary">
             View Leaderboard
           </motion.button>
         </Link>

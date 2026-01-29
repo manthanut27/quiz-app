@@ -22,21 +22,21 @@ const categories = [
     id: 'html',
     name: 'HTML',
     description: 'Structure & Markup',
-    icon: '/assests/html.svg',
+    icon: '/assets/html.svg',
     color: '#E44D26'
   },
   {
     id: 'css',
     name: 'CSS',
     description: 'Styling & Layout',
-    icon: '/assests/css.svg',
+    icon: '/assets/css.svg',
     color: '#264DE4'
   },
   {
     id: 'js',
     name: 'JavaScript',
     description: 'Logic & Interactivity',
-    icon: '/assests/js.svg',
+    icon: '/assets/js.svg',
     color: '#F7DF1E'
   }
 ]
@@ -51,15 +51,11 @@ function QuizSelect() {
 
   const handleSubmit = () => {
     const newErrors = {}
-    
-    if (!name.trim()) {
-      newErrors.name = 'Please enter your name'
-    }
-    if (!selectedCategory) {
-      newErrors.category = 'Please select a category'
-    }
 
-    if (Object.keys(newErrors).length > 0) {
+    if (!name.trim()) newErrors.name = 'Please enter your name'
+    if (!selectedCategory) newErrors.category = 'Please select a category'
+
+    if (Object.keys(newErrors).length) {
       setErrors(newErrors)
       setIsShaking(true)
       setTimeout(() => setIsShaking(false), 500)
@@ -80,9 +76,8 @@ function QuizSelect() {
       animate="visible"
       exit="exit"
     >
-      {/* Animated Background */}
       <div className="bg-gradient" />
-      
+
       <motion.div className="back-link" variants={itemVariants}>
         <motion.button
           onClick={() => navigate('/')}
@@ -99,7 +94,7 @@ function QuizSelect() {
         <p>Enter your name and choose your quiz category</p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         className="select-card"
         variants={itemVariants}
         animate={isShaking ? { x: [-10, 10, -10, 10, 0] } : {}}
@@ -108,11 +103,8 @@ function QuizSelect() {
         {/* Name Input */}
         <div className="input-group">
           <label>Your Name</label>
-          <motion.div 
-            className={`input-wrapper ${errors.name ? 'error' : ''}`}
-            whileFocus={{ scale: 1.02 }}
-          >
-            <img src="/assests/user.svg" alt="User" />
+          <div className={`input-wrapper ${errors.name ? 'error' : ''}`}>
+            <img src="/assets/user.svg" alt="User" />
             <input
               type="text"
               placeholder="Enter your name..."
@@ -121,32 +113,17 @@ function QuizSelect() {
                 setName(e.target.value)
                 setErrors({ ...errors, name: '' })
               }}
-              onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
+              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
             />
-          </motion.div>
-          {errors.name && (
-            <motion.span 
-              className="error-text"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {errors.name}
-            </motion.span>
-          )}
+          </div>
+          {errors.name && <span className="error-text">{errors.name}</span>}
         </div>
 
         {/* Category Selection */}
         <div className="category-group">
           <label>Select Quiz Category</label>
-          {errors.category && (
-            <motion.span 
-              className="error-text"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              {errors.category}
-            </motion.span>
-          )}
+          {errors.category && <span className="error-text">{errors.category}</span>}
+
           <div className="categories">
             {categories.map((cat, index) => (
               <motion.div
@@ -159,60 +136,28 @@ function QuizSelect() {
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.3 + index * 0.1 }}
-                whileHover={{ 
-                  scale: 1.05,
-                  boxShadow: `0 10px 30px ${cat.color}30`
-                }}
+                whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <motion.div 
-                  className="category-icon"
-                  animate={selectedCategory === cat.id ? { 
-                    rotate: [0, -10, 10, 0],
-                    scale: [1, 1.1, 1]
-                  } : {}}
-                  transition={{ duration: 0.5 }}
-                >
+                <div className="category-icon">
                   <img src={cat.icon} alt={cat.name} />
-                </motion.div>
+                </div>
                 <strong>{cat.name}</strong>
                 <small>{cat.description}</small>
-                {selectedCategory === cat.id && (
-                  <motion.div 
-                    className="check-mark"
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: "spring", stiffness: 500 }}
-                  >
-                    ✓
-                  </motion.div>
-                )}
+                {selectedCategory === cat.id && <div className="check-mark">✓</div>}
               </motion.div>
             ))}
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Buttons */}
         <div className="action-buttons">
-          <motion.button
-            className="btn btn-secondary"
-            onClick={() => navigate('/')}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-          >
+          <button className="btn btn-secondary" onClick={() => navigate('/')}>
             Back
-          </motion.button>
-          <motion.button
-            className="btn btn-primary"
-            onClick={handleSubmit}
-            whileHover={{ 
-              scale: 1.02,
-              boxShadow: "0 10px 30px rgba(50, 183, 188, 0.4)"
-            }}
-            whileTap={{ scale: 0.98 }}
-          >
+          </button>
+          <button className="btn btn-primary" onClick={handleSubmit}>
             Start Quiz →
-          </motion.button>
+          </button>
         </div>
       </motion.div>
     </motion.div>

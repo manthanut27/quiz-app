@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useQuiz } from '../context/QuizContext'
 import { getQuestionsByCategory } from '../data/questions'
+
+const QUESTION_TIME = 15
 
 function Play() {
   const navigate = useNavigate()
@@ -21,7 +23,7 @@ function Play() {
   const [score, setLocalScore] = useState(0)
   const [showFeedback, setShowFeedback] = useState(false)
   const [isCorrect, setIsCorrect] = useState(null)
-  const [timeLeft, setTimeLeft] = useState(15)
+  const [timeLeft, setTimeLeft] = useState(QUESTION_TIME)
   const [isTimerActive, setIsTimerActive] = useState(true)
 
   /* ================= INIT ================= */
@@ -31,16 +33,31 @@ function Play() {
       navigate('/quiz-select')
       return
     }
-    setQuestions(getQuestionsByCategory(category))
+
+    const loadedQuestions = getQuestionsByCategory(category)
+
+    if (!Array.isArray(loadedQuestions) || loadedQuestions.length === 0) {
+      navigate('/quiz-select')
+      return
+    }
+
+    setQuestions(loadedQuestions)
   }, [category, navigate])
 
   /* ================= TIMER ================= */
 
   const handleTimeUp = useCallback(() => {
     setIsTimerActive(false)
-    setIsCorrect(false)
+
+    const correct =
+      selectedOption !== null &&
+      selectedOption === questions[currentIndex]?.answer
+
+    setIsCorrect(correct)
+    if (correct) setLocalScore((prev) => prev + 1)
+
     setShowFeedback(true)
-  }, [])
+  }, [selectedOption, questions, currentIndex])
 
   useEffect(() => {
     if (!isTimerActive || showFeedback) return
@@ -48,6 +65,7 @@ function Play() {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
+          clearInterval(timer)
           handleTimeUp()
           return 0
         }
@@ -66,7 +84,7 @@ function Play() {
   }
 
   const handleSubmit = () => {
-    if (selectedOption === null) return
+    if (selectedOption === null || showFeedback) return
 
     const correct =
       selectedOption === questions[currentIndex].answer
@@ -89,7 +107,7 @@ function Play() {
       setSelectedOption(null)
       setShowFeedback(false)
       setIsCorrect(null)
-      setTimeLeft(15)
+      setTimeLeft(QUESTION_TIME)
       setIsTimerActive(true)
     } else {
       finishQuiz()
@@ -98,12 +116,14 @@ function Play() {
 
   const finishQuiz = () => {
     const total = questions.length
-    const status = score >= total * 0.5 ? 'PASSED' : 'FAILED'
+    const finalScore = score
+    const status = finalScore >= total * 0.5 ? 'PASSED' : 'FAILED'
+    const safeName = userName?.trim() || 'Anonymous'
 
-    setScore(score)
+    setScore(finalScore)
     setTotalQuestions(total)
     setQuizStatus(status)
-    saveToLeaderboard(userName, score, total, category)
+    saveToLeaderboard(safeName, finalScore, total, category)
 
     navigate('/score')
   }
@@ -125,21 +145,17 @@ function Play() {
   const currentQuestion = questions[currentIndex]
   const progress = ((currentIndex + 1) / questions.length) * 100
 
-  /* ================= UI (UNCHANGED) ================= */
+  /* ================= UI ================= */
 
   return (
     <motion.div className="play-page">
-      {/* HEADER */}
       <div className="play-header">
-        <div className="category-badge">
-          {category?.toUpperCase()}
-        </div>
+        <div className="category-badge">{category?.toUpperCase()}</div>
         <div className="user-greeting">
-          Hi, <span className="user-name">{userName}</span>
+          Hi, <span className="user-name">{userName || 'Player'}</span>
         </div>
       </div>
 
-      {/* PROGRESS */}
       <div className="progress-container">
         <div className="progress-info">
           <span>
@@ -155,12 +171,10 @@ function Play() {
         </div>
       </div>
 
-      {/* TIMER */}
       <div className={`timer ${timeLeft <= 5 ? 'warning' : ''}`}>
         <span className="timer-text">{timeLeft}</span>
       </div>
 
-      {/* QUIZ */}
       <div className="quiz-card">
         <p className="question-label">Question:</p>
         <h2 className="question-text">{currentQuestion.question}</h2>
@@ -207,7 +221,6 @@ function Play() {
         </button>
       </div>
 
-      {/* SCORE */}
       <div className="current-score">
         Score: <span>{score}</span> / {questions.length}
       </div>
