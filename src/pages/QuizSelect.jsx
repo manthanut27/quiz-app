@@ -104,7 +104,7 @@ function QuizSelect() {
         <div className="input-group">
           <label>Your Name</label>
           <div className={`input-wrapper ${errors.name ? 'error' : ''}`}>
-            <img src="/assets/user.svg" alt="User" />
+            <img src="/icons/user.svg" alt="User" />
             <input
               type="text"
               placeholder="Enter your name..."
