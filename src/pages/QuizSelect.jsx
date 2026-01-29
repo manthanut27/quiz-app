@@ -22,21 +22,21 @@ const categories = [
     id: 'html',
     name: 'HTML',
     description: 'Structure & Markup',
-    icon: '/assets/html.svg',
+    icon: '/icons/html.svg',
     color: '#E44D26'
   },
   {
     id: 'css',
     name: 'CSS',
     description: 'Styling & Layout',
-    icon: '/assets/css.svg',
+    icon: '/icons/css.svg',
     color: '#264DE4'
   },
   {
     id: 'js',
     name: 'JavaScript',
     description: 'Logic & Interactivity',
-    icon: '/assets/js.svg',
+    icon: '/icons/js.svg',
     color: '#F7DF1E'
   }
 ]
