@@ -6,6 +6,8 @@ import QuizSelect from './pages/QuizSelect'
 import Play from './pages/Play'
 import Score from './pages/Score'
 import Leaderboard from './pages/Leaderboard'
+import Snowfall from "react-snowfall";
+
 
 function AnimatedRoutes() {
   const location = useLocation()
@@ -27,8 +29,26 @@ function App() {
   return (
     <QuizProvider>
       <Router>
-        <div className="app">
-          <AnimatedRoutes />
+        <div className="app" style={{ position: "relative" }}>
+          
+          {/* Snowfall effect */}
+          <Snowfall
+            color="lightblue"
+            snowflakeCount={150}
+            style={{
+              position: "fixed",
+              width: "100vw",
+              height: "100vh",
+              pointerEvents: "none", // IMPORTANT
+              zIndex: 1,
+            }}
+          />
+
+          {/* Your routes & UI */}
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <AnimatedRoutes />
+          </div>
+
         </div>
       </Router>
     </QuizProvider>
